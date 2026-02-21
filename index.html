@@ -57,10 +57,11 @@
           const video = document.createElement('video');
           video.srcObject = stream;
           video.setAttribute('playsinline', '');
-          video.style.opacity = '0.5'; // ★ここで「人の透け具合」を調整できます
+          video.style.opacity = '0.3'; // ★ここで「人の透け具合」を調整できます
           video.play();
           document.body.appendChild(video);
         });
     </script>
   </body>
 </html>
+
