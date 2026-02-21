@@ -25,7 +25,6 @@
         background: rgba(255, 255, 255, 0.9);
         padding: 8px 20px;
         border-radius: 50px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
     </style>
   </head>
@@ -37,22 +36,22 @@
 
     <a-scene 
       embedded 
-      arjs="sourceType: webcam; debugUIEnabled: false; videoTexture: true;" 
+      arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best; maxDetectionRate: 30;" 
       vr-mode-ui="enabled: false">
       
       <a-assets>
         <img id="busan-img" src="day_2.jpg" crossorigin="anonymous">
       </a-assets>
 
-      <a-entity camera>
+      <a-camera gps-camera-rotation rotation-reader>
         <a-image 
           src="#busan-img" 
-          position="0 0 -2.0" 
-          width="1.5" 
-          height="2.1"
-          material="shader: flat; transparent: true; opacity: 0.9">
+          position="0 0 -1.5" 
+          width="1.2" 
+          height="1.8"
+          material="shader: flat; transparent: true; opacity: 1; side: double;">
         </a-image>
-      </a-entity>
+      </a-camera>
 
     </a-scene>
   </body>
