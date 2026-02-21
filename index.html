@@ -3,11 +3,28 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan AR Photo Spot</title>
+    <title>Busan Background AR</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-      body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+      /* 1. 全ての基本を「透明」にする */
+      body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+      
+      /* 2. カメラ映像(video)を z-index: 1 にして、画像より前に持ってくる */
+      video {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100% !important; height: 100% !important;
+        object-fit: cover;
+        z-index: 1; /* 画像より前 */
+      }
+
+      /* 3. ARの画像(A-Frameのキャンバス)を z-index: 0 にして、一番後ろにする */
+      canvas {
+        position: absolute;
+        top: 0; left: 0;
+        z-index: 0 !important; /* 一番奥 */
+      }
+
       #ui-layer {
         position: fixed; top: 40px; left: 0; width: 100%; z-index: 100;
         display: flex; justify-content: center; pointer-events: none;
@@ -21,28 +38,29 @@
 
   <body>
     <div id="ui-layer">
-      <div class="title">감천 문화마ウル</div>
+      <div class="title">감천 문화마을</div>
     </div>
 
-    <a-scene 
-      embedded 
-      arjs="sourceType: webcam; debugUIEnabled: false; videoTexture: true;" 
-      vr-mode-ui="enabled: false">
-      
+    <a-scene embedded vr-mode-ui="enabled: false">
       <a-assets>
         <img id="busan-img" src="day_2.jpg">
       </a-assets>
 
-      <a-camera look-controls-enabled="false" wasd-controls-enabled="false">
-        <a-image 
-          src="#busan-img" 
-          position="0 0 -10" 
-          width="9" 
-          height="12"
-          material="shader: flat; transparent: false; opacity: 1.0;">
-        </a-image>
-      </a-camera>
+      <a-sky src="#busan-img" rotation="0 -90 0"></a-sky>
 
+      <a-entity camera look-controls="enabled: false"></a-entity>
     </a-scene>
+
+    <script>
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => {
+          const video = document.createElement('video');
+          video.srcObject = stream;
+          video.setAttribute('playsinline', '');
+          video.style.opacity = '0.5'; // ★ここで「人の透け具合」を調整できます
+          video.play();
+          document.body.appendChild(video);
+        });
+    </script>
   </body>
 </html>
