@@ -3,52 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Busan Neon Portal</title>
+<title>Busan Neon Fixed Portal</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-body { margin:0; overflow:hidden; background:#000; font-family:sans-serif; }
-#menu-overlay {
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:rgba(0,0,0,0.9);color:white;z-index:20;text-align:center;
-}
-.menu-btn {
-    width: 220px; padding:15px; margin:10px; font-size:18px;
-    background:transparent; border:2px solid #bf55ec; border-radius:50px;
-    color:white; cursor:pointer; text-shadow: 0 0 10px #bf55ec; box-shadow: 0 0 15px rgba(191,85,236,0.3);
-}
-#btn-reset {
-    position:absolute;top:20px;right:20px;padding:10px 20px;
-    background:rgba(255,255,255,0.1);border:1px solid #bf55ec;
-    color:white;border-radius:5px;z-index:15;display:none;
-}
-#guide-msg {
-    position:absolute;bottom:20%;width:100%;text-align:center;
-    color:#00ffff; font-size:1.2rem; z-index:10; display:none;
-    text-shadow: 0 0 10px #00ffff;
-}
+    body { margin:0; overflow:hidden; background:#000; font-family:sans-serif; }
+    #menu-overlay {
+        position:absolute;top:0;left:0;width:100%;height:100%;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        background:rgba(0,0,0,0.9);color:white;z-index:20;text-align:center;
+    }
+    .menu-btn {
+        width: 220px; padding:15px; margin:10px; font-size:18px;
+        background:transparent; border:2px solid #00ffff; border-radius:5px;
+        color:#00ffff; cursor:pointer; text-shadow: 0 0 8px #00ffff;
+    }
+    #btn-reset {
+        position:absolute;top:20px;right:20px;padding:10px 20px;
+        background:rgba(0,0,0,0.5);border:1px solid #00ffff;
+        color:#00ffff;border-radius:5px;z-index:15;display:none;
+    }
+    #status-ui {
+        position:absolute; bottom:10%; width:100%; text-align:center;
+        color:#ff00ff; font-weight:bold; z-index:10; pointer-events:none;
+        text-shadow: 0 0 10px #ff00ff; font-size: 1.2rem;
+    }
 </style>
 </head>
 <body>
 
 <div id="menu-overlay">
-    <h2 style="color:#bf55ec;">BUSAN NEON PORTAL</h2>
-    <button class="menu-btn" onclick="startPortal('day')">Busan Day</button>
-    <button class="menu-btn" onclick="startPortal('noon')">Busan Noon</button>
-    <button class="menu-btn" onclick="startPortal('night')">Busan Night</button>
-    <p style="font-size:0.8rem; margin-top:20px;">目的地を選んで歩き出してください</p>
+    <h1 style="color:#00ffff; letter-spacing: 5px;">BUSAN NEON</h1>
+    <button class="menu-btn" onclick="startPortal('day')">MORNING</button>
+    <button class="menu-btn" onclick="startPortal('noon')">NOON</button>
+    <button class="menu-btn" onclick="startPortal('night')">NIGHT</button>
 </div>
 
-<div id="guide-msg">ドアに向かって歩いてください</div>
+<div id="status-ui">画面を長押しして進んでください</div>
 <button id="btn-reset" onclick="resetToMenu()">最初に戻る</button>
 
 <script>
-let scene, camera, renderer, currentPortal=null, gridHelper, moveZ=0, targetZ=0, isTouch=false, isImmersed=false;
+let scene, camera, renderer, currentPortal=null, moveZ=0, targetZ=0, isTouch=false, isImmersed=false;
 const loader = new THREE.TextureLoader();
 
 const portalData = {
-    day:   { color: 0x87CEEB, img: './day_1.jpg' },
-    noon:  { color: 0xFFA500, img: './day_2.jpg' },
+    day:   { color: 0x00ffff, img: './day_1.jpg' },
+    noon:  { color: 0xffea00, img: './day_2.jpg' },
     night: { color: 0xbf55ec, img: './night_1.jpg' }
 };
 
@@ -58,10 +57,11 @@ function initScene() {
     camera.position.set(0, 1.6, 0);
 
     renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 現実世界のAR背景
+    // 背景ビデオ
     navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
     .then(stream => {
         const video = document.createElement('video');
@@ -69,20 +69,44 @@ function initScene() {
         scene.background = new THREE.VideoTexture(video);
     });
 
-    // ネオングリッドの作成（足元）
-    gridHelper = new THREE.GridHelper(100, 50, 0xbf55ec, 0x444444);
-    gridHelper.position.y = 0;
-    scene.add(gridHelper);
+    // ネオン空間（トンネル）の作成
+    createNeonTunnel();
 
     document.addEventListener('touchstart', e => { if(e.target.tagName !== 'BUTTON') isTouch=true; });
     document.addEventListener('touchend', () => isTouch=false);
     
     window.addEventListener('deviceorientation', e => {
-        // 首振りのみの制御（YXZ順で回転を適用）
         camera.rotation.set((e.beta-90)*Math.PI/180, 0, e.alpha*Math.PI/180, 'YXZ');
     });
 
     animate();
+}
+
+function createNeonTunnel() {
+    const tunnelGroup = new THREE.Group();
+    const gridColor = 0xff00ff;
+
+    // 床・天井・壁のグリッドを配置して「トンネル」にする
+    const createGrid = (y, rX, rY) => {
+        const g = new THREE.GridHelper(200, 40, gridColor, gridColor);
+        g.position.y = y;
+        g.rotation.x = rX;
+        g.rotation.z = rY;
+        return g;
+    };
+
+    tunnelGroup.add(createGrid(0, 0, 0));             // 床
+    tunnelGroup.add(createGrid(4, 0, 0));             // 天井
+    
+    const wallL = createGrid(0, Math.PI/2, Math.PI/2);
+    wallL.position.set(-3, 2, 0);
+    tunnelGroup.add(wallL);
+
+    const wallR = createGrid(0, Math.PI/2, Math.PI/2);
+    wallR.position.set(3, 2, 0);
+    tunnelGroup.add(wallR);
+
+    scene.add(tunnelGroup);
 }
 
 function startPortal(type) {
@@ -91,86 +115,65 @@ function startPortal(type) {
 
     const data = portalData[type];
     const group = new THREE.Group();
-    group.position.set(0, 1.5, -5); // ドアを5m先に配置
+    group.position.set(0, 1.5, -5); // 5m先に設置
 
-    // ネオンドア
-    const dGeo = new THREE.PlaneGeometry(1.5, 3.5);
-    const matL = new THREE.MeshBasicMaterial({color: data.color, transparent:true, opacity:0.8});
-    const matR = new THREE.MeshBasicMaterial({color: data.color, transparent:true, opacity:0.8});
-    const L = new THREE.Mesh(dGeo, matL);
-    const R = new THREE.Mesh(dGeo, matR);
-    L.position.set(-0.75, 0, 0.05); R.position.set(0.75, 0, 0.05);
-
-    // 360度全天球（5m先のドアの位置に配置）
+    // 360度画像（球体）
     const tex = loader.load(data.img);
-    const sphereGeo = new THREE.SphereGeometry(20, 60, 40);
-    sphereGeo.scale(-1, 1, 1);
-    const sphereMat = new THREE.MeshBasicMaterial({map:tex, transparent:true, opacity:0, depthWrite: false});
-    const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-    sphere.position.set(0, 0, 0); 
+    const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(20, 60, 40).scale(-1, 1, 1),
+        new THREE.MeshBasicMaterial({map:tex, transparent:true, opacity:0})
+    );
+    
+    // ネオンの門枠
+    const frame = new THREE.Mesh(
+        new THREE.RingGeometry(1.2, 1.4, 4),
+        new THREE.MeshBasicMaterial({color: data.color, side: THREE.DoubleSide})
+    );
+    frame.rotation.z = Math.PI / 4;
 
-    group.add(L, R, sphere);
+    group.add(sphere, frame);
     scene.add(group);
 
-    currentPortal = { group, L, R, sphere, z: -5 };
+    currentPortal = { group, sphere, frame, z: -5 };
     isImmersed = false;
     moveZ = targetZ = 0;
 
     document.getElementById('menu-overlay').style.display = 'none';
     document.getElementById('btn-reset').style.display = 'block';
-    document.getElementById('guide-msg').style.display = 'block';
+    document.getElementById('status-ui').innerText = "5m先の世界へ進んでください";
 }
 
 function animate() {
     requestAnimationFrame(animate);
 
-    // 没入前は移動を許可、没入後は移動をロック
-    if(isTouch && !isImmersed) targetZ += 0.025;
-    moveZ += (targetZ - moveZ) * 0.1;
-    
     if(!isImmersed) {
+        if(isTouch) targetZ += 0.03;
+        moveZ += (targetZ - moveZ) * 0.1;
         camera.position.z = -moveZ;
-        // グリッドをカメラに合わせて動かし無限に続くように見せる
-        gridHelper.position.z = camera.position.z;
+
+        // 5mに到達した瞬間に強制スナップ
+        if(-camera.position.z >= 5.0) {
+            isImmersed = true;
+            document.getElementById('status-ui').innerText = "到着：目線だけ動かせます";
+        }
+    } else {
+        // 【重要】没入後は毎フレーム、カメラの座標を球体の中心(0, 1.5, -5)に上書き
+        // これにより、スマホを動かしても画像がぶれなくなります
+        camera.position.set(0, 1.5, -5);
     }
 
     if(currentPortal) {
-        const distToDoor = Math.abs(camera.position.z - currentPortal.z);
-        
-        // 扉の開放スピードをさらに落とし（0.015）、3m手前から開き始める
-        const openProgress = THREE.MathUtils.clamp((3.0-distToDoor)/3.0, 0, 1);
-        currentPortal.L.position.x = THREE.MathUtils.lerp(currentPortal.L.position.x, openProgress > 0 ? -3.0 : -0.75, 0.015);
-        currentPortal.R.position.x = THREE.MathUtils.lerp(currentPortal.R.position.x, openProgress > 0 ? 3.0 : 0.75, 0.015);
-
-        // 【重要】5.0m地点で中心に吸い込み、座標を固定
-        if(-camera.position.z >= 5.0 && !isImmersed) {
-            isImmersed = true;
-            camera.position.set(0, 1.5, -5); // 球体の中心へスナップ
-            document.getElementById('guide-msg').innerText = "釜山に到着しました";
-            setTimeout(()=> { document.getElementById('guide-msg').style.display='none'; }, 3000);
-        }
-
-        // 透明度のフェードイン
-        if(openProgress > 0.01) {
-            currentPortal.sphere.material.opacity = THREE.MathUtils.lerp(currentPortal.sphere.material.opacity, 1, 0.02);
-        }
+        const dist = Math.abs(camera.position.z - currentPortal.z);
+        // 3m前から画像が見え始める
+        const opacity = THREE.MathUtils.clamp((3.0 - dist) / 2.0, 0, 1);
+        currentPortal.sphere.material.opacity = opacity;
     }
 
     if(renderer) renderer.render(scene, camera);
 }
 
 function resetToMenu() {
-    document.getElementById('menu-overlay').style.display = 'flex';
-    document.getElementById('btn-reset').style.display = 'none';
-    document.getElementById('guide-msg').style.display = 'none';
-    document.getElementById('guide-msg').innerText = "ドアに向かって歩いてください";
-    if(currentPortal) {
-        scene.remove(currentPortal.group);
-        currentPortal = null;
-    }
-    moveZ = targetZ = 0;
-    isImmersed = false;
-    camera.position.set(0, 1.6, 0);
+    location.reload(); // 確実に初期化するためにリロードを推奨
 }
 </script>
 </body>
