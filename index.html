@@ -3,30 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan AR Portal</title>
+    <title>Busan AR Background</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-      /* カメラ映像を画面いっぱいに広げるための強制設定 */
       body { margin: 0; overflow: hidden; }
       #ui-layer {
-        position: fixed;
-        top: 30px;
-        left: 0;
-        width: 100%;
-        z-index: 999;
-        pointer-events: none;
-        display: flex;
-        justify-content: center;
+        position: fixed; top: 30px; left: 0; width: 100%; z-index: 999;
+        display: flex; justify-content: center; pointer-events: none;
       }
       .title {
-        font-family: sans-serif;
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 10px 25px;
-        border-radius: 50px;
+        font-family: sans-serif; font-size: 20px; font-weight: bold;
+        background: rgba(255, 255, 255, 0.9); padding: 10px 25px; border-radius: 50px;
       }
     </style>
   </head>
@@ -39,8 +27,7 @@
     <a-scene 
       embedded 
       arjs="sourceType: webcam; debugUIEnabled: false;" 
-      vr-mode-ui="enabled: false"
-      renderer="alpha: true; antialias: true; colorManagement: true;">
+      vr-mode-ui="enabled: false">
       
       <a-assets>
         <img id="busan-img" src="day_2.jpg">
@@ -49,10 +36,10 @@
       <a-entity camera>
         <a-image 
           src="#busan-img" 
-          position="0 0 -2.0" 
-          width="1.8" 
-          height="2.5"
-          material="shader: flat; transparent: true; opacity: 0.7;">
+          position="0 0.5 -5" 
+          width="6" 
+          height="8"
+          material="shader: flat; transparent: false; opacity: 1.0;">
         </a-image>
       </a-entity>
 
