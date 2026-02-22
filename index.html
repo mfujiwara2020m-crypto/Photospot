@@ -3,68 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan Photo Spot</title>
+    <title>Busan Portal Shot</title>
     <style>
-      /* 全ての背景を透明にし、カメラが見えるようにする */
       body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-      /* カメラ映像を全画面に表示（最背面） */
-      #camera-view {
+      /* 1. 【背景】プサンの画像を一番奥に「くっきり」表示 */
+      #busan-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        object-fit: cover; /* 画面いっぱいに広げる */
+        z-index: 1;
+        filter: brightness(0.9); /* 少しだけ暗くすると人物が引き立ちます */
+      }
+
+      /* 2. 【手前】カメラ映像（友人）を上に重ねる */
+      #camera-fg {
         position: fixed;
         top: 0; left: 0;
         width: 100vw; height: 100vh;
         object-fit: cover;
-        z-index: 1;
+        z-index: 2;
+        /* ★ここが重要！人を浮かび上がらせ、背景と馴染ませる設定 */
+        mix-blend-mode: screen; 
+        opacity: 0.9; /* 人をハッキリさせるために高めに設定 */
       }
 
-      /* 釜山の画像をカメラの上に重ねる */
-      #busan-frame {
+      /* 3. 【額縁】画像のような「白い枠」をつけて、窓っぽさを出す */
+      #frame-overlay {
         position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%); /* 画面中央に配置 */
-        width: 100%; /* 画面幅いっぱいに */
-        height: auto;
-        z-index: 10; /* カメラより前 */
-        pointer-events: none; /* 画像を触ってもカメラ操作を邪魔しない */
-        opacity: 0.6; /* ★ここを0.5〜0.8にすると、人と背景が混ざり合います */
+        top: 10vh; left: 10vw;
+        width: 80vw; height: 80vh;
+        border: 5px solid white;
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+        z-index: 10;
+        pointer-events: none;
       }
 
-      .title {
-        position: fixed; top: 40px; width: 100%; text-align: center;
-        z-index: 100;
-        font-family: sans-serif; font-size: 18px; font-weight: bold;
-      }
-      .title span {
-        background: rgba(255, 255, 255, 0.9); padding: 8px 25px; border-radius: 50px;
+      .title-label {
+        position: absolute; top: -20px; left: 50%;
+        transform: translateX(-50%);
+        background: white; color: #333;
+        padding: 5px 20px; border-radius: 10px;
+        font-weight: bold; font-family: sans-serif;
       }
     </style>
   </head>
 
   <body>
-    <div class="title"><span>감천 문화마을</span></div>
+    <img src="day_2.jpg" id="busan-bg">
 
-    <video id="camera-view" autoplay playsinline></video>
+    <video id="camera-fg" autoplay playsinline></video>
 
-    <img src="day_2.jpg" id="busan-frame">
+    <div id="frame-overlay">
+      <div class="title-label">감천 문화마을</div>
+    </div>
 
     <script>
-      // 非常にシンプルなカメラ起動スクリプト
-      const video = document.getElementById('camera-view');
-      
-      async function startCamera() {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: 'environment' }, 
-            audio: false 
-          });
-          video.srcObject = stream;
-        } catch (err) {
-          console.error("Camera error:", err);
-          alert("カメラを許可してください。");
-        }
-      }
-
-      startCamera();
+      const video = document.getElementById('camera-fg');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => { alert("カメラを許可してください"); });
     </script>
   </body>
 </html>
