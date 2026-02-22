@@ -3,65 +3,69 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan Portal Shot</title>
+    <title>Busan Perfect Window</title>
     <style>
       body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-      /* 1. 【背景】プサンの画像を一番奥に「くっきり」表示 */
-      #busan-bg {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        object-fit: cover; /* 画面いっぱいに広げる */
-        z-index: 1;
-        filter: brightness(0.9); /* 少しだけ暗くすると人物が引き立ちます */
-      }
-
-      /* 2. 【手前】カメラ映像（友人）を上に重ねる */
-      #camera-fg {
+      /* 【1層目：カメラ映像】一番奥に、100%の濃さで表示 */
+      #video-bg {
         position: fixed;
         top: 0; left: 0;
         width: 100vw; height: 100vh;
         object-fit: cover;
-        z-index: 2;
-        /* ★ここが重要！人を浮かび上がらせ、背景と馴染ませる設定 */
-        mix-blend-mode: screen; 
-        opacity: 0.9; /* 人をハッキリさせるために高めに設定 */
+        z-index: 1;
       }
 
-      /* 3. 【額縁】画像のような「白い枠」をつけて、窓っぽさを出す */
-      #frame-overlay {
+      /* 【2層目：釜山の画像】カメラの上に重ねるが、中央を「マスク」で抜く */
+      #busan-overlay {
         position: fixed;
-        top: 10vh; left: 10vw;
-        width: 80vw; height: 80vh;
-        border: 5px solid white;
-        border-radius: 20px;
-        box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
-        z-index: 10;
-        pointer-events: none;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: 2;
+        background-image: url('day_2.jpg');
+        background-size: cover;
+        background-position: center;
+        
+        /* ここで中央を四角く切り抜きます（窓を作る） */
+        -webkit-mask-image: radial-gradient(rgba(0,0,0,0) 50%, black 50%);
+        /* 四角い窓にしたい場合はこちらを使います↓ */
+        mask: linear-gradient(to right, black 10%, transparent 10%, transparent 90%, black 90%),
+              linear-gradient(to bottom, black 15%, transparent 15%, transparent 85%, black 85%);
+        mask-composite: exclude;
+        -webkit-mask-composite: destination-in;
       }
 
-      .title-label {
-        position: absolute; top: -20px; left: 50%;
-        transform: translateX(-50%);
-        background: white; color: #333;
-        padding: 5px 20px; border-radius: 10px;
-        font-weight: bold; font-family: sans-serif;
+      /* 窓の縁取り（白いフレーム） */
+      #frame-line {
+        position: fixed;
+        top: 15vh; left: 10vw;
+        width: 80vw; height: 70vh;
+        border: 4px solid white;
+        border-radius: 10px;
+        z-index: 3;
+        pointer-events: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      }
+
+      .label {
+        position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+        background: white; color: #333; padding: 5px 15px; border-radius: 5px;
+        font-weight: bold; font-family: sans-serif; font-size: 14px;
       }
     </style>
   </head>
 
   <body>
-    <img src="day_2.jpg" id="busan-bg">
+    <video id="video-bg" autoplay playsinline></video>
 
-    <video id="camera-fg" autoplay playsinline></video>
+    <div id="busan-overlay"></div>
 
-    <div id="frame-overlay">
-      <div class="title-label">감천 문화마을</div>
+    <div id="frame-line">
+      <div class="label">감천 문화마을</div>
     </div>
 
     <script>
-      const video = document.getElementById('camera-fg');
+      const video = document.getElementById('video-bg');
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(stream => { video.srcObject = stream; })
         .catch(err => { alert("カメラを許可してください"); });
