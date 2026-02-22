@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan Perfect Window</title>
+    <title>Busan Golden Ratio</title>
     <style>
       body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-      /* 【1層目：カメラ映像】一番奥に、100%の濃さで表示 */
+      /* 【1層目：カメラ映像】窓の奥に見える人 */
       #video-bg {
         position: fixed;
         top: 0; left: 0;
@@ -16,7 +16,7 @@
         z-index: 1;
       }
 
-      /* 【2層目：釜山の画像】カメラの上に重ねるが、中央を「マスク」で抜く */
+      /* 【2層目：釜山の背景】窓を小さくして、景色を広く見せる */
       #busan-overlay {
         position: fixed;
         top: 0; left: 0;
@@ -26,40 +26,38 @@
         background-size: cover;
         background-position: center;
         
-        /* ここで中央を四角く切り抜きます（窓を作る） */
-        -webkit-mask-image: radial-gradient(rgba(0,0,0,0) 50%, black 50%);
-        /* 四角い窓にしたい場合はこちらを使います↓ */
-        mask: linear-gradient(to right, black 10%, transparent 10%, transparent 90%, black 90%),
-              linear-gradient(to bottom, black 15%, transparent 15%, transparent 85%, black 85%);
+        /* 窓のサイズを調整：中央の40%〜60%だけを抜く */
+        -webkit-mask-image: radial-gradient(transparent 45%, black 48%);
+        /* 四角い窓を小さく作る設定 */
+        mask: linear-gradient(to right, black 25%, transparent 25%, transparent 75%, black 75%),
+              linear-gradient(to bottom, black 30%, transparent 30%, transparent 70%, black 70%);
         mask-composite: exclude;
         -webkit-mask-composite: destination-in;
       }
 
-      /* 窓の縁取り（白いフレーム） */
+      /* 【3層目：窓の枠】小さくなった窓に合わせる */
       #frame-line {
         position: fixed;
-        top: 15vh; left: 10vw;
-        width: 80vw; height: 70vh;
-        border: 4px solid white;
-        border-radius: 10px;
+        top: 30vh; left: 25vw; /* 上下左右に余白をたっぷり作る */
+        width: 50vw; height: 40vh; /* 窓をコンパクトに */
+        border: 3px solid white;
+        border-radius: 15px;
         z-index: 3;
         pointer-events: none;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        box-shadow: 0 0 30px rgba(0,0,0,0.8);
       }
 
       .label {
-        position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-        background: white; color: #333; padding: 5px 15px; border-radius: 5px;
-        font-weight: bold; font-family: sans-serif; font-size: 14px;
+        position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+        background: white; color: #333; padding: 4px 12px; border-radius: 5px;
+        font-weight: bold; font-family: sans-serif; font-size: 12px; white-space: nowrap;
       }
     </style>
   </head>
 
   <body>
     <video id="video-bg" autoplay playsinline></video>
-
     <div id="busan-overlay"></div>
-
     <div id="frame-line">
       <div class="label">감천 문화마을</div>
     </div>
