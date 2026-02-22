@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan Final Adjust</title>
+    <title>Busan Bottom Frame</title>
     <style>
       body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
@@ -16,7 +16,7 @@
         z-index: 1;
       }
 
-      /* 【2層目】4枚の画像パネル */
+      /* 【2層目】画像パネル */
       .bg-panel {
         position: fixed;
         z-index: 2;
@@ -25,30 +25,32 @@
         background-repeat: no-repeat;
       }
       
-      /* 上のパネルを長くして、窓を下に押し下げます（25vh → 40vh） */
-      #panel-top { top: 0; left: 0; width: 100vw; height: 40vh; background-position: top center; }
+      /* 上のパネルを最大化（55vh）して、窓をガッツリ下げます */
+      #panel-top { top: 0; left: 0; width: 100vw; height: 55vh; background-position: top center; }
       
-      /* 下のパネルを短くします（35vh → 20vh） */
-      #panel-bottom { bottom: 0; left: 0; width: 100vw; height: 20vh; background-position: bottom center; }
+      /* 下のパネルを最小化（5vh）して、一番下に寄せます */
+      #panel-bottom { bottom: 0; left: 0; width: 100vw; height: 5vh; background-position: bottom center; }
       
-      /* 左右のパネルの開始位置も下げます（top: 25vh → 40vh） */
-      #panel-left { top: 40vh; left: 0; width: 20vw; height: 40vh; background-position: left center; }
-      #panel-right { top: 40vh; right: 0; width: 20vw; height: 40vh; background-position: right center; }
+      /* 左右のパネルの開始位置も合わせます（top: 55vh） */
+      #panel-left { top: 55vh; left: 0; width: 15vw; height: 40vh; background-position: left center; }
+      #panel-right { top: 55vh; right: 0; width: 15vw; height: 40vh; background-position: right center; }
 
-      /* 【3層目】白い枠の位置も合わせます（top: 25vh → 40vh） */
+      /* 【3層目】白い枠の位置（top: 55vh） */
+      /* 左右の余白を少し削って(width: 70vw)、よりワイドにしました */
       #frame-line {
         position: fixed;
-        top: 40vh; left: 20vw;
-        width: 60vw; height: 40vh;
+        top: 55vh; left: 15vw;
+        width: 70vw; height: 40vh;
         border: 3px solid white;
         box-sizing: border-box;
-        border-radius: 10px;
+        border-radius: 12px;
         z-index: 3;
         pointer-events: none;
       }
 
+      /* ラベルは枠の上に配置して、景色を邪魔しないようにします */
       .label {
-        position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+        position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
         background: white; color: #333; padding: 4px 15px; border-radius: 5px;
         font-weight: bold; font-family: sans-serif; font-size: 14px; white-space: nowrap;
       }
