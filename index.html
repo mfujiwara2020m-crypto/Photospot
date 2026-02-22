@@ -3,77 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Busan Perfect Photo</title>
+    <title>Busan Photo Spot</title>
     <style>
+      /* 全ての背景を透明にし、カメラが見えるようにする */
       body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-      /* 【1層目：カメラ映像】一番奥に配置 */
-      #video-bg {
-        position: fixed;
-        right: 0; bottom: 0;
-        min-width: 100%; min-height: 100%;
-        width: auto; height: auto;
-        z-index: -1; /* 人を一番奥に */
-        object-fit: cover;
-      }
-
-      /* 【2層目：釜山の画像】カメラの前（人の後ろ）に配置 */
-      /* ここでは「背景」として画像を全画面に固定します */
-      #ar-image {
+      /* カメラ映像を全画面に表示（最背面） */
+      #camera-view {
         position: fixed;
         top: 0; left: 0;
-        width: 100%; height: 100%;
-        object-fit: contain; /* 画像を縦に伸ばさない */
-        z-index: -2; /* 画像をさらに奥に送る */
+        width: 100vw; height: 100vh;
+        object-fit: cover;
+        z-index: 1;
       }
 
-      /* 重なり順を制御するためのコンテナ */
-      .container {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      /* 釜山の画像をカメラの上に重ねる */
+      #busan-frame {
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%); /* 画面中央に配置 */
+        width: 100%; /* 画面幅いっぱいに */
+        height: auto;
+        z-index: 10; /* カメラより前 */
+        pointer-events: none; /* 画像を触ってもカメラ操作を邪魔しない */
+        opacity: 0.6; /* ★ここを0.5〜0.8にすると、人と背景が混ざり合います */
       }
 
       .title {
-        position: fixed; top: 40px;
+        position: fixed; top: 40px; width: 100%; text-align: center;
         z-index: 100;
         font-family: sans-serif; font-size: 18px; font-weight: bold;
+      }
+      .title span {
         background: rgba(255, 255, 255, 0.9); padding: 8px 25px; border-radius: 50px;
       }
     </style>
   </head>
 
   <body>
-    <div id="ui-layer">
-      <div class="title">감천 문화마을</div>
-    </div>
+    <div class="title"><span>감천 문화마을</span></div>
 
-    <div class="container">
-      <img src="day_2.jpg" id="ar-image">
-      
-      <video id="video-bg" autoplay playsinline></video>
-    </div>
+    <video id="camera-view" autoplay playsinline></video>
+
+    <img src="day_2.jpg" id="busan-frame">
 
     <script>
-      // ブラウザのカメラを直接起動する
-      const video = document.getElementById('video-bg');
-      navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' }, // 外カメラ
-        audio: false 
-      })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        alert("カメラの起動に失敗しました: " + err);
-      });
+      // 非常にシンプルなカメラ起動スクリプト
+      const video = document.getElementById('camera-view');
+      
+      async function startCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'environment' }, 
+            audio: false 
+          });
+          video.srcObject = stream;
+        } catch (err) {
+          console.error("Camera error:", err);
+          alert("カメラを許可してください。");
+        }
+      }
 
-      // 人を「手前」にするために、カメラ映像の背景を透明化（または透過）
-      // ※人物切り抜きは高度なため、一旦「透過」で確実に両立させます
-      video.style.opacity = "0.7"; // 0.7〜0.8にすると人も背景もハッキリします
+      startCamera();
     </script>
   </body>
 </html>
